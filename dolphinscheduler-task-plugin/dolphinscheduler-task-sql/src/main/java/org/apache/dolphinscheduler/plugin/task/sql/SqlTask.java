@@ -234,7 +234,14 @@ public class SqlTask extends AbstractTask {
             while (resultSet.next()) {
                 ObjectNode mapOfColValues = JSONUtils.createObjectNode();
                 for (int i = 1; i <= num; i++) {
-                    mapOfColValues.set(md.getColumnLabel(i), JSONUtils.toJsonNode(resultSet.getObject(i)));
+                    Object value = resultSet.getObject(i);
+                    String strValue = value == null ? "" : value.toString();
+                    // Excel 单元格最大长度 32767
+                    if (strValue.length() > 32767) {
+                        strValue = strValue.substring(0, 32767);
+                    }
+                    mapOfColValues.set(md.getColumnLabel(i), JSONUtils.toJsonNode(strValue));
+                    // mapOfColValues.set(md.getColumnLabel(i), JSONUtils.toJsonNode(resultSet.getObject(i)));
                 }
                 resultJSONArray.add(mapOfColValues);
             }
