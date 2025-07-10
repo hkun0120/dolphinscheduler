@@ -40,6 +40,7 @@ import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.SpreadsheetVersion;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -236,12 +237,12 @@ public class SqlTask extends AbstractTask {
                 for (int i = 1; i <= num; i++) {
                     Object value = resultSet.getObject(i);
                     String strValue = value == null ? "" : value.toString();
-                    // Excel 单元格最大长度 32767
-                    if (strValue.length() > 32767) {
-                        strValue = strValue.substring(0, 32767);
+                    int maxLen = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
+
+                    if (strValue.length() > maxLen) {
+                        strValue = strValue.substring(0, maxLen - 67) + "...(truncated)";
                     }
                     mapOfColValues.set(md.getColumnLabel(i), JSONUtils.toJsonNode(strValue));
-                    // mapOfColValues.set(md.getColumnLabel(i), JSONUtils.toJsonNode(resultSet.getObject(i)));
                 }
                 resultJSONArray.add(mapOfColValues);
             }
